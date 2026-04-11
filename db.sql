@@ -59,7 +59,7 @@ CREATE TABLE user_chat (
 
 CREATE TABLE message (
     message_id SERIAL PRIMARY KEY,
-    content VARCHAR(255),
+    content TEXT,
     user_id INT,
     chat_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -69,7 +69,7 @@ CREATE TABLE message (
 
 CREATE TABLE message_image (
     id SERIAL PRIMARY KEY,
-    image_url VARCHAR(255) NOT NULL,
+    image_url TEXT NOT NULL,
     message_id INT,
     FOREIGN KEY (message_id) REFERENCES message(message_id) ON DELETE CASCADE
 );
