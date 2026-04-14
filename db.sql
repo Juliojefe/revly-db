@@ -183,6 +183,60 @@ CREATE TABLE review_response_image (
     FOREIGN KEY (response_id) REFERENCES review_response(response_id) ON DELETE CASCADE
 );
 
+--  predefined reasons have been inserted manually
+CREATE TABLE report_reason (
+    reason_id SERIAL PRIMARY KEY,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT NOT NULL
+);
+
+CREATE TABLE report (
+    report_id SERIAL PRIMARY KEY,
+    reporter_id INT NOT NULL,
+    entity_type VARCHAR(30) NOT NULL,
+    entity_id INT NOT NULL,
+    explanation TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reviewed_by INT,
+    admin_explanation TEXT,
+    reviewed_at TIMESTAMP,
+    FOREIGN KEY (reporter_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewed_by) REFERENCES users(user_id) ON DELETE SET NULL,
+    CONSTRAINT unique_reporter_entity UNIQUE (reporter_id, entity_type, entity_id),
+    CONSTRAINT chk_valid_status CHECK (status IN ('PENDING', 'IN_REVIEW', 'RESOLVED', 'CLOSED', 'DISMISSED')),
+    CONSTRAINT chk_valid_entity_type CHECK (entity_type IN (
+        'USER',
+        'POST',
+        'COMMENT',
+        'REVIEW',
+        'MESSAGE',
+        'MESSAGE_IMAGE',
+        'POST_IMAGE',
+        'COMMENT_IMAGE',
+        'REVIEW_IMAGE',
+        'REVIEW_RESPONSE',
+        'REVIEW_RESPONSE_IMAGE'
+    ))
+);
+
+-- multiple reasons per report
+CREATE TABLE report_report_reason (
+    report_id INT NOT NULL,
+    reason_id INT NOT NULL,
+    PRIMARY KEY (report_id, reason_id),
+    FOREIGN KEY (report_id) REFERENCES report(report_id) ON DELETE CASCADE,
+    FOREIGN KEY (reason_id) REFERENCES report_reason(reason_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_report_status ON report(status);
+CREATE INDEX idx_report_reporter_id ON report(reporter_id);
+CREATE INDEX idx_report_reporter_status ON report(reporter_id, status);
+CREATE INDEX idx_report_entity_type_entity_id ON report(entity_type, entity_id);
+CREATE INDEX idx_report_created_at ON report(created_at DESC);
+CREATE INDEX idx_report_reviewed_by ON report(reviewed_by);
+CREATE INDEX idx_report_report_reason_report_id ON report_report_reason(report_id);
+CREATE INDEX idx_report_report_reason_reason_id ON report_report_reason(reason_id);
 CREATE INDEX idx_post_created_at ON post(created_at DESC);
 CREATE INDEX idx_post_user_id ON post(user_id);
 CREATE INDEX idx_post_embedding_hnsw ON post USING hnsw (description_embedding vector_cosine_ops) WHERE description_embedding IS NOT NULL;
