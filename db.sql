@@ -144,6 +144,45 @@ CREATE TABLE user_businesses (
     FOREIGN KEY (business_id) REFERENCES businesses(business_id) ON DELETE CASCADE
 );
 
+CREATE TABLE review (
+    review_id SERIAL PRIMARY KEY,
+    reviewer_id INT NOT NULL,
+    mechanic_id INT NOT NULL,
+    business_id INT,
+    rating DOUBLE PRECISION NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (reviewer_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (mechanic_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (business_id) REFERENCES businesses(business_id) ON DELETE SET NULL,
+    CONSTRAINT unique_reviewer_mechanic UNIQUE (reviewer_id, mechanic_id)
+);
+
+CREATE TABLE review_image (
+    id SERIAL PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL,
+    review_id INT,
+    FOREIGN KEY (review_id) REFERENCES review(review_id) ON DELETE CASCADE
+);
+
+CREATE TABLE review_response (
+    response_id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    user_id INT,
+    review_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (review_id) REFERENCES review(review_id) ON DELETE CASCADE
+);
+
+CREATE TABLE review_response_image (
+    id SERIAL PRIMARY KEY,
+    image_url VARCHAR(255) NOT NULL,
+    response_id INT,
+    FOREIGN KEY (response_id) REFERENCES review_response(response_id) ON DELETE CASCADE
+);
+
 CREATE INDEX idx_post_created_at ON post(created_at DESC);
 CREATE INDEX idx_post_user_id ON post(user_id);
 CREATE INDEX idx_post_embedding_hnsw ON post USING hnsw (description_embedding vector_cosine_ops) WHERE description_embedding IS NOT NULL;
@@ -157,3 +196,10 @@ CREATE INDEX idx_post_tag_tag_id_post_id ON post_tag(tag_id, post_id);
 CREATE INDEX idx_post_image_post_id ON post_image(post_id);
 CREATE INDEX idx_user_businesses_user_id ON user_businesses(user_id);
 CREATE INDEX idx_user_businesses_business_id ON user_businesses(business_id);
+CREATE INDEX idx_review_mechanic_id ON review(mechanic_id);
+CREATE INDEX idx_review_reviewer_id ON review(reviewer_id);
+CREATE INDEX idx_review_created_at ON review(created_at DESC);
+CREATE INDEX idx_review_business_id ON review(business_id);
+CREATE INDEX idx_review_image_review_id ON review_image(review_id);
+CREATE INDEX idx_review_response_review_id ON review_response(review_id);
+CREATE INDEX idx_review_response_created_at ON review_response(created_at DESC);
