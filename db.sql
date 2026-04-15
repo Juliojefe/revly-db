@@ -212,11 +212,7 @@ CREATE TABLE report (
         'REVIEW',
         'MESSAGE',
         'MESSAGE_IMAGE',
-        'POST_IMAGE',
-        'COMMENT_IMAGE',
-        'REVIEW_IMAGE',
-        'REVIEW_RESPONSE',
-        'REVIEW_RESPONSE_IMAGE'
+        'REVIEW_RESPONSE'
     ))
 );
 
