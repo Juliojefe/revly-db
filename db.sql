@@ -211,7 +211,6 @@ CREATE TABLE report (
         'COMMENT',
         'REVIEW',
         'MESSAGE',
-        'MESSAGE_IMAGE',
         'REVIEW_RESPONSE'
     ))
 );
