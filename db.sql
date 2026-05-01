@@ -10,7 +10,7 @@ CREATE TABLE users (
 
 CREATE TABLE post (
     post_id SERIAL PRIMARY KEY,
-    description VARCHAR(3000) NOT NULL,
+    description VARCHAR(20000) NOT NULL,
     user_id INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     description_embedding VECTOR(1536),
